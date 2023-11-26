@@ -1,16 +1,89 @@
-export const App = () => {
-  return (
-    <div
-      style={{
-        height: '100vh',
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center',
-        fontSize: 40,
-        color: '#010101'
-      }}
-    >
-      React homework template
-    </div>
-  );
-};
+import { Component } from 'react';
+import { Notify } from 'notiflix';
+import Searchbar from './Searchbar/Searchbar';
+import { ImageGallery } from './ImageGallery/ImageGallery';
+import Button from './Button/Button';
+import Loader from './Loader/Loader';
+import Modal from './Modal/Modal';
+import { getItems } from './PixabayApi';
+import css from './App.module.css';
+
+class App extends Component {
+  state = {
+    images: [],
+    query: '',
+    page: 1,
+    isLoading: false,
+    showBtn: false,
+    showModal: false,
+    largeImageURL: '',
+  };
+
+  onSubmit = query => {
+    this.setState({
+      query,
+      isLoading: true,
+      images: [],
+      page: 1,
+    });
+
+    this.fetchGallery(query, 1);
+  };
+
+  nextPage = () => {
+    const { query, page } = this.state;
+
+    this.setState({
+      page: page + 1,
+      isLoading: true,
+    });
+
+    this.fetchGallery(query, page + 1);
+  };
+
+  openImageModal = url => {
+    this.setState({ showModal: true, largeImageURL: url });
+  };
+
+  closeModal = () => {
+    this.setState({ showModal: false, largeImageURL: '' });
+  };
+
+  fetchGallery = (query, page) => {
+    getItems(query, page)
+      .then(response => {
+        this.setState(prevState => ({
+          images: [...prevState.images, ...response],
+          showBtn: response.length === 12,
+        }));
+
+        if (response.length === 0) {
+          Notify.failure('No matches found!');
+        }
+      })
+      .catch(error => {
+        this.setState({ error });
+      })
+      .finally(() => {
+        this.setState({ isLoading: false });
+      });
+  };
+
+  render() {
+    const { images, isLoading, showBtn, showModal, largeImageURL } = this.state;
+
+    return (
+      <div className={css.App}>
+        <Searchbar getInputValue={this.onSubmit} />
+        <ImageGallery images={images} openImageModal={this.openImageModal} />
+        {isLoading && <Loader />}
+        {showBtn && <Button nextPage={this.nextPage} hasMoreImages={true} />}
+        {showModal && (
+          <Modal largeImageURL={largeImageURL} closeModal={this.closeModal} />
+        )}
+      </div>
+    );
+  }
+}
+
+export default App;
