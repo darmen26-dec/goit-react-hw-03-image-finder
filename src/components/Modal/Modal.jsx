@@ -12,10 +12,11 @@ class Modal extends Component {
   }
 
   handleKeyDown = e => {
-    if (e.key === 'Escape' || e.currentTarget === e.target) {
-      if (this.props.closeModal) {
-        this.props.closeModal();
-      }
+    if (
+      e.key === 'Escape' ||
+      (e.currentTarget === e.target && this.props.closeModal)
+    ) {
+      this.props.closeModal();
     }
   };
 

@@ -19,6 +19,15 @@ class App extends Component {
     largeImageURL: '',
   };
 
+  componentDidUpdate(prevProps, prevState) {
+    if (
+      this.state.query !== prevState.query ||
+      this.state.page !== prevState.page
+    ) {
+      this.fetchGallery(this.state.query, this.state.page);
+    }
+  }
+
   onSubmit = query => {
     this.setState({
       query,
