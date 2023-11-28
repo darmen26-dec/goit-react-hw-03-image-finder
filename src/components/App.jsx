@@ -35,19 +35,15 @@ class App extends Component {
       images: [],
       page: 1,
     });
-
-    this.fetchGallery(query, 1);
   };
 
   nextPage = () => {
-    const { query, page } = this.state;
+    const { page } = this.state;
 
     this.setState({
       page: page + 1,
       isLoading: true,
     });
-
-    this.fetchGallery(query, page + 1);
   };
 
   openImageModal = url => {
